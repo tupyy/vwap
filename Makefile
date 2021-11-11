@@ -104,8 +104,8 @@ build.docker:
 
 #help build.local: build locally a binary, in target/ folder
 build.local: build.prepare
-	go build -mod=vendor $(BUILD_ARGS) -ldflags "-X CommitID=$(GIT_COMMIT) -s -w" \
-	-o $(CURDIR)/target/run $(CURDIR)/cmd/$(NAME)-server/main.go
+	go build -mod=vendor $(BUILD_ARGS) -ldflags "-X main.CommitID=$(GIT_COMMIT) -s -w" \
+	-o $(CURDIR)/target/run $(CURDIR)/main.go
 
 #####################
 # Check targets     #
@@ -149,7 +149,7 @@ check.test: check.prepare
 
 #help run.docker: run the application on a container
 run.docker:
-	docker run -d --rm -v $(CURDIR)/resources/:/etc/$(NAME)/ --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --config /etc/$(NAME)/.$(NAME).yaml
+	docker run -d --rm -v $(CURDIR)/resources/:/etc/$(NAME)/ --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --config /etc/$(NAME)/.$(NAME).json
 	@docker logs -f $(NAME) | $(COLORIZE)
 
 #help run.docker.stop: stop the container of the application
@@ -159,3 +159,7 @@ run.docker.stop:
 #help run.docker.logs: display logs from the application in the container
 run.docker.logs:
 	docker logs -f $(NAME) | $(COLORIZE)
+
+#help run.local: run the application locally
+run.local:
+	@$(CURDIR)/target/run -c resources/.$(NAME).json | $(COLORIZE)

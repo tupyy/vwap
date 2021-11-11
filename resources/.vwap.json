@@ -1,0 +1,7 @@
+{
+    "log_level": "debug",
+    "endpoint": "test.test",
+    "currency": [
+        "BTC-ETH", "BTC-USD"
+    ]
+}
