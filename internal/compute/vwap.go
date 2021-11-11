@@ -1,9 +1,6 @@
-package calculator
+package compute
 
 import "github.com/tupyy/vwap/internal/entity"
-
-// DefaultVolumeSize is the default size for average calculation.
-const DefaultVolumeSize = 200
 
 type Calculator struct {
 	// stack holds the points
@@ -41,6 +38,6 @@ func (c *Calculator) Add(p entity.VolumePoint) {
 	c.valueVolumeSum += p.Value * p.Volume
 }
 
-func (c *Calculator) ComputeAverage() float64 {
-	return c.valueVolumeSum / c.totalVolume
+func (c *Calculator) ComputeAverage() (avg float64, totalPoints int) {
+	return c.valueVolumeSum / c.totalVolume, c.stack.Size()
 }

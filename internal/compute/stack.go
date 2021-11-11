@@ -1,4 +1,4 @@
-package calculator
+package compute
 
 import (
 	"github.com/tupyy/vwap/internal/entity"

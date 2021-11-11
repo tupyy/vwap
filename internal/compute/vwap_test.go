@@ -1,4 +1,4 @@
-package calculator_test
+package compute_test
 
 import (
 	"testing"
