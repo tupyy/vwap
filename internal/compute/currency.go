@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/tupyy/vwap/internal/calculator"
 	"github.com/tupyy/vwap/internal/entity"
+	"github.com/tupyy/vwap/internal/log"
 )
 
 // DefaultVolumeSize is the default size for average calculation.
@@ -20,7 +20,7 @@ var (
 
 type currencyAvgCalculator struct {
 	// c -- avg calculator
-	calc *calculator.Calculator
+	calc *Calculator
 	// heartBeatSequence -- holds the last received sequence
 	heartBeatSequence int64
 	// lastTimestamp -- holds the timestamp of the last message
@@ -29,7 +29,7 @@ type currencyAvgCalculator struct {
 
 func NewCurrencyAvgCalculator(volumeSize int) *currencyAvgCalculator {
 	return &currencyAvgCalculator{
-		calc: calculator.New(volumeSize),
+		calc: NewCalculator(volumeSize),
 	}
 }
 
@@ -52,6 +52,8 @@ func (c *currencyAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, tot
 	c.calc.Add(newPoint)
 
 	avg, totalPoints = c.calc.ComputeAverage()
+
+	log.GetLogger().Debug("new ticker processed: %+v. new average: %f", t, avg)
 
 	return
 }

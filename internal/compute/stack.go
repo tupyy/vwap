@@ -2,6 +2,7 @@ package compute
 
 import (
 	"github.com/tupyy/vwap/internal/entity"
+	"github.com/tupyy/vwap/internal/log"
 )
 
 type node struct {
@@ -23,6 +24,8 @@ func (s *stack) Push(p entity.VolumePoint) {
 		s.root = &node{value: p}
 		s.size++
 
+		log.GetLogger().Trace("set root to %+v", p)
+
 		return
 	}
 
@@ -37,6 +40,8 @@ func (s *stack) Pop() *node {
 	root := s.root
 	s.root = s.root.prev
 	s.size--
+
+	log.GetLogger().Trace("element popped %+v. new size: %d", root, s.size)
 
 	return root
 }

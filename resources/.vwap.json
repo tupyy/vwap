@@ -1,7 +1,8 @@
 {
     "log_level": "debug",
     "endpoint": "test.test",
-    "currency": [
+    "trading_pairs": [
         "BTC-ETH", "BTC-USD"
-    ]
+    ],
+    "max_data_points": 200
 }

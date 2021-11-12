@@ -13,19 +13,23 @@ type CurrencyAvgCalculator interface {
 	ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error)
 }
 
-type AvgManager struct {
-	doneCh   chan interface{}
-	outputCh chan<- entity.AverageResult
+type OutputWriter interface {
+	Write(r entity.AverageResult)
+}
 
+type AvgManager struct {
+	doneCh chan interface{}
+
+	outWriter OutputWriter
 	// avgCurrencyCalculators holds the avg calculators.
 	// the key is the product id
 	avgCurrencyCalculators map[string]CurrencyAvgCalculator
 }
 
-func NewAvgManager(calculators []CurrencyAvgCalculator) *AvgManager {
+func NewAvgManager(calculators []CurrencyAvgCalculator, o OutputWriter) *AvgManager {
 	avgManager := &AvgManager{
 		doneCh:                 make(chan interface{}, 1),
-		outputCh:               make(chan entity.AverageResult),
+		outWriter:              o,
 		avgCurrencyCalculators: make(map[string]CurrencyAvgCalculator),
 	}
 
@@ -55,12 +59,12 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 					if err != nil {
 						// log it
 					} else {
-						a.outputCh <- entity.AverageResult{
+						a.outWriter.Write(entity.AverageResult{
 							ProductID:   v.ProductID,
 							Average:     avg,
 							Timestamp:   time.Now(),
 							TotalPoints: totalPoints,
-						}
+						})
 					}
 				}
 			case <-a.doneCh:
@@ -71,11 +75,6 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 			}
 		}
 	}()
-}
-
-// OutputChannel returns the channel on which the results will be written.
-func (a *AvgManager) OutputChannel() chan<- entity.AverageResult {
-	return a.outputCh
 }
 
 // Shutdown close the avg manager.

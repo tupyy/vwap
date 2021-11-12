@@ -70,7 +70,7 @@ tools.get:
 #####################
 # Build targets     #
 #####################
-NAME=vwat
+NAME=vwap
 VERSION=$(shell cat VERSION)
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
@@ -162,4 +162,4 @@ run.docker.logs:
 
 #help run.local: run the application locally
 run.local:
-	@$(CURDIR)/target/run -c resources/.$(NAME).json | $(COLORIZE)
+	@$(CURDIR)/target/run --config resources/.$(NAME).json | $(COLORIZE)
