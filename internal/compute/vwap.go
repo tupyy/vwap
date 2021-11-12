@@ -23,7 +23,7 @@ func NewCalculator(size int) *Calculator {
 	}
 }
 
-func (c *Calculator) Add(p entity.VolumePoint) {
+func (c *Calculator) Add(p entity.DataPoint) {
 	if c.stack.Size() == c.maxSize {
 		poppedPoint := c.stack.Pop()
 

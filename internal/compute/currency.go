@@ -18,7 +18,7 @@ var (
 	ErrSequenceNotIncreasing = errors.New("error sequence not increasing")
 )
 
-type currencyAvgCalculator struct {
+type tradingPairAvgCalculator struct {
 	// c -- avg calculator
 	calc *Calculator
 	// heartBeatSequence -- holds the last received sequence
@@ -27,23 +27,23 @@ type currencyAvgCalculator struct {
 	lastTimestamp time.Time
 }
 
-func NewCurrencyAvgCalculator(volumeSize int) *currencyAvgCalculator {
-	return &currencyAvgCalculator{
+func NewAvgCalculator(volumeSize int) *tradingPairAvgCalculator {
+	return &tradingPairAvgCalculator{
 		calc: NewCalculator(volumeSize),
 	}
 }
 
 // ProcessHeartBeat updates the lastSequence and last timestamp
-func (c *currencyAvgCalculator) ProcessHeartBeat(h entity.HeartBeat) {
+func (c *tradingPairAvgCalculator) ProcessHeartBeat(h entity.HeartBeat) {
 	c.heartBeatSequence = h.Sequence
 }
 
-func (c *currencyAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error) {
+func (c *tradingPairAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error) {
 	if t.Sequence < c.heartBeatSequence {
 		return 0, 0, fmt.Errorf("%w received sequence: %d last sequence: %d", ErrSequenceNotIncreasing, t.Sequence, c.heartBeatSequence)
 	}
 
-	newPoint := entity.VolumePoint{
+	newPoint := entity.DataPoint{
 		Value:  t.Price,
 		Volume: t.Volume,
 	}

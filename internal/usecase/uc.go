@@ -45,20 +45,31 @@ func NewAvgManager(calculators []CurrencyAvgCalculator, o OutputWriter) *AvgMana
 // It receive an input channel and a context.
 // From input channel reads Ticker and HeartBeat messages.
 func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
+	logger := log.GetLogger()
+
 	go func() {
 		for {
 			select {
 			case msg := <-inputCh:
 				switch v := msg.(type) {
 				case entity.HeartBeat:
+					logger.Debug("heart beat received: %+v", v)
+
 					c := a.avgCurrencyCalculators[v.ProductID]
 					c.ProcessHeartBeat(v)
 				case entity.Ticker:
-					c := a.avgCurrencyCalculators[v.ProductID]
+					logger.Debug("ticker received: %+v", v)
+
+					c, found := a.avgCurrencyCalculators[v.ProductID]
+					if !found {
+						logger.Error("received ticker for a product that does not exists: %s", c.ProductID)
+
+						continue
+					}
 
 					avg, totalPoints, err := c.ProcessTicker(v)
 					if err != nil {
-						// log it
+						logger.Error("cannot compute average: %+v", err)
 					} else {
 						err := a.outWriter.Write(entity.AverageResult{
 							ProductID:   v.ProductID,
@@ -70,11 +81,14 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 							log.GetLogger().Warning("cannot write to output: %+v", err)
 						}
 					}
+				default:
+					log.GetLogger().Warning("cannot cast received message: %+v", msg)
 				}
 			case <-a.doneCh:
+				logger.Info("shutdown avg manager")
 				return
-			case <-ctx.Done():
-				// ctx canceled
+			case err := <-ctx.Done():
+				logger.Error("ctx canceled: %+v. exit", err)
 				return
 			}
 		}

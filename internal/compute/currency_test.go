@@ -10,7 +10,7 @@ import (
 )
 
 func TestCurrencyAvgCalculator(t *testing.T) {
-	c := compute.NewCurrencyAvgCalculator(3)
+	c := compute.NewAvgCalculator(3)
 
 	c.ProcessHeartBeat(entity.HeartBeat{
 		Sequence: 1,

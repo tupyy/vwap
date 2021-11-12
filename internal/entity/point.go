@@ -1,6 +1,6 @@
 package entity
 
-type VolumePoint struct {
+type DataPoint struct {
 	Value  float64
 	Volume float64
 }

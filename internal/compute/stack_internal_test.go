@@ -10,8 +10,8 @@ import (
 func TestStack(t *testing.T) {
 	s := newStack()
 
-	s.Push(entity.VolumePoint{Value: 1, Volume: 1})
-	s.Push(entity.VolumePoint{Value: 2, Volume: 2})
+	s.Push(entity.DataPoint{Value: 1, Volume: 1})
+	s.Push(entity.DataPoint{Value: 2, Volume: 2})
 
 	assert.Equal(t, 2, s.Size(), "expected 2 elements in the stack")
 

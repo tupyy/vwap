@@ -7,7 +7,7 @@ import (
 
 type node struct {
 	prev  *node
-	value entity.VolumePoint
+	value entity.DataPoint
 }
 
 type stack struct {
@@ -19,7 +19,7 @@ func newStack() *stack {
 	return &stack{}
 }
 
-func (s *stack) Push(p entity.VolumePoint) {
+func (s *stack) Push(p entity.DataPoint) {
 	if s.root == nil {
 		s.root = &node{value: p}
 		s.size++
@@ -50,7 +50,7 @@ func (s *stack) Size() int {
 	return s.size
 }
 
-func (s *stack) pushEnd(n *node, p entity.VolumePoint) {
+func (s *stack) pushEnd(n *node, p entity.DataPoint) {
 	if n.prev == nil {
 		n.prev = &node{value: p}
 		s.size++
