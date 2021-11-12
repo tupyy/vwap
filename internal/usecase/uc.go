@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/tupyy/vwap/internal/entity"
+	"github.com/tupyy/vwap/internal/log"
 )
 
 type CurrencyAvgCalculator interface {
@@ -14,7 +15,7 @@ type CurrencyAvgCalculator interface {
 }
 
 type OutputWriter interface {
-	Write(r entity.AverageResult)
+	Write(r entity.AverageResult) error
 }
 
 type AvgManager struct {
@@ -59,12 +60,15 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 					if err != nil {
 						// log it
 					} else {
-						a.outWriter.Write(entity.AverageResult{
+						err := a.outWriter.Write(entity.AverageResult{
 							ProductID:   v.ProductID,
 							Average:     avg,
 							Timestamp:   time.Now(),
 							TotalPoints: totalPoints,
 						})
+						if err != nil {
+							log.GetLogger().Warning("cannot write to output: %+v", err)
+						}
 					}
 				}
 			case <-a.doneCh:

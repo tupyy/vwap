@@ -1,3 +1,4 @@
+// This package parse the configuration flags or the conf json file.
 package conf
 
 import (
@@ -14,6 +15,7 @@ var (
 	endpoint      string
 	logLevel      string
 	confFile      string
+	outputFile    string
 	maxDataPoints int64
 )
 
@@ -21,6 +23,7 @@ type Conf struct {
 	Endpoint      string
 	TradingPairs  []string
 	MaxDataPoints int64
+	OutputFile    string
 }
 
 func init() {
@@ -28,6 +31,7 @@ func init() {
 	flag.StringVar(&pairs, "pairs", "", "comma separated trading pairs")
 	flag.StringVar(&logLevel, "log_level", "info", "log level")
 	flag.StringVar(&confFile, "config", "", "path of the configuration file")
+	flag.StringVar(&outputFile, "output", "", "path of the output file")
 	flag.Int64Var(&maxDataPoints, "max_data_points", 200, "maximum number of data points used to compute the average")
 }
 
@@ -62,6 +66,7 @@ func Get() Conf {
 	conf := Conf{
 		Endpoint:     endpoint,
 		TradingPairs: make([]string, 0, 3),
+		OutputFile:   outputFile,
 	}
 
 	for _, p := range strings.Split(pairs, ",") {
@@ -102,6 +107,7 @@ func parseConfFile(content []byte) Conf {
 		TradingPairs  []string `json:"trading_pairs"`
 		LogLevel      string   `json:"log_level,omitempty"`
 		MaxDataPoints int64    `json:"max_data_points,omitempty"`
+		OutputFile    string   `json:"output_file,omitempty"`
 	}{}
 
 	// unmarshal the content into confFile
@@ -115,5 +121,6 @@ func parseConfFile(content []byte) Conf {
 		Endpoint:      confFile.Endpoint,
 		TradingPairs:  confFile.TradingPairs,
 		MaxDataPoints: confFile.MaxDataPoints,
+		OutputFile:    confFile.OutputFile,
 	}
 }
