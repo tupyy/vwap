@@ -18,7 +18,7 @@ var (
 	ErrSequenceNotIncreasing = errors.New("error sequence not increasing")
 )
 
-type tradingPairAvgCalculator struct {
+type TradingPairAvgCalculator struct {
 	// c -- avg calculator
 	calc *Calculator
 	// heartBeatSequence -- holds the last received sequence
@@ -27,18 +27,18 @@ type tradingPairAvgCalculator struct {
 	lastTimestamp time.Time
 }
 
-func NewAvgCalculator(volumeSize int) *tradingPairAvgCalculator {
-	return &tradingPairAvgCalculator{
+func NewAvgCalculator(volumeSize int) *TradingPairAvgCalculator {
+	return &TradingPairAvgCalculator{
 		calc: NewCalculator(volumeSize),
 	}
 }
 
 // ProcessHeartBeat updates the lastSequence and last timestamp
-func (c *tradingPairAvgCalculator) ProcessHeartBeat(h entity.HeartBeat) {
+func (c *TradingPairAvgCalculator) ProcessHeartBeat(h entity.HeartBeat) {
 	c.heartBeatSequence = h.Sequence
 }
 
-func (c *tradingPairAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error) {
+func (c *TradingPairAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error) {
 	if t.Sequence < c.heartBeatSequence {
 		return 0, 0, fmt.Errorf("%w received sequence: %d last sequence: %d", ErrSequenceNotIncreasing, t.Sequence, c.heartBeatSequence)
 	}

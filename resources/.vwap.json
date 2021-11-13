@@ -1,8 +1,8 @@
 {
-    "log_level": "debug",
-    "endpoint": "test.test",
+    "log_level": "info",
+    "endpoint": "wss://ws-feed.exchange.coinbase.com",
     "trading_pairs": [
-        "BTC-ETH", "BTC-USD"
+        "BTC-USD", "ETH-USD", "ETH-BTC"
     ],
     "max_data_points": 200
 }

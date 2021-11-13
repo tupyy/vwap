@@ -8,28 +8,25 @@ import (
 	"github.com/tupyy/vwap/internal/entity"
 )
 
-type OutputWrite struct {
+type OutputWriter struct {
 	dest *os.File
 }
 
-func NewStdOutputWriter() *OutputWrite {
+func NewStdOutputWriter() *OutputWriter {
 	return newWriter(os.Stdout)
 }
 
-func NewFileOutputWriter(f *os.File) *OutputWrite {
+func NewFileOutputWriter(f *os.File) *OutputWriter {
 	return newWriter(f)
 }
 
-func newWriter(dest *os.File) *OutputWrite {
-	return &OutputWrite{dest}
+func newWriter(dest *os.File) *OutputWriter {
+	return &OutputWriter{dest}
 }
 
-func (o *OutputWrite) Write(r entity.AverageResult) error {
-	msg := fmt.Sprintf("[%s], ProductID: %s, Average: %f, Total data points: %d", r.Timestamp.Format(time.RFC1123Z), r.ProductID, r.Average, r.TotalPoints)
-
-	if _, err := o.dest.WriteString(msg); err != nil {
-		return err
-	}
+func (o *OutputWriter) Write(r entity.AverageResult) error {
+	msg := fmt.Sprintf("[%s], ProductID: %s, Average: %f, Total data points: %d\n", r.Timestamp.Format(time.RFC1123Z), r.ProductID, r.Average, r.TotalPoints)
+	fmt.Fprint(o.dest, msg)
 
 	return nil
 }

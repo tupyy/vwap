@@ -2,7 +2,10 @@ module github.com/tupyy/vwap
 
 go 1.17
 
-require github.com/stretchr/testify v1.7.0
+require (
+	github.com/stretchr/testify v1.7.0
+	golang.org/x/net v0.0.0-20211111160137-58aab5ef257a
+)
 
 require (
 	github.com/davecgh/go-spew v1.1.0 // indirect

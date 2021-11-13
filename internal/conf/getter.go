@@ -87,7 +87,7 @@ func Get() Conf {
 }
 
 func parseLogLevel(l string) log.Level {
-	switch strings.ToLower(logLevel) {
+	switch strings.ToLower(l) {
 	case "trace":
 		return log.Trace
 	case "debug":

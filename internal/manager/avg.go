@@ -1,4 +1,4 @@
-package usecase
+package manager
 
 import (
 	"context"
@@ -9,7 +9,6 @@ import (
 )
 
 type CurrencyAvgCalculator interface {
-	ProductID() string
 	ProcessHeartBeat(h entity.HeartBeat)
 	ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error)
 }
@@ -27,18 +26,18 @@ type AvgManager struct {
 	avgCurrencyCalculators map[string]CurrencyAvgCalculator
 }
 
-func NewAvgManager(calculators []CurrencyAvgCalculator, o OutputWriter) *AvgManager {
+func NewAvgManager(o OutputWriter) *AvgManager {
 	avgManager := &AvgManager{
 		doneCh:                 make(chan interface{}, 1),
 		outWriter:              o,
 		avgCurrencyCalculators: make(map[string]CurrencyAvgCalculator),
 	}
 
-	for _, c := range calculators {
-		avgManager.avgCurrencyCalculators[c.ProductID()] = c
-	}
-
 	return avgManager
+}
+
+func (a *AvgManager) AddAvgCalculator(productID string, c CurrencyAvgCalculator) {
+	a.avgCurrencyCalculators[productID] = c
 }
 
 // Start starts the avg manager.
@@ -62,7 +61,7 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 
 					c, found := a.avgCurrencyCalculators[v.ProductID]
 					if !found {
-						logger.Error("received ticker for a product that does not exists: %s", c.ProductID)
+						logger.Error("received ticker for a product that does not exists: %s", v.ProductID)
 
 						continue
 					}
