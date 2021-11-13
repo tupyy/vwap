@@ -16,7 +16,7 @@ make build.docker
 make run.docker
 ```
 
-### How to
+### Other targets
 
 - Find information related to the Makefile: make or make help
 - Format code: `make check.fmt`
