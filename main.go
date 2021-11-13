@@ -57,22 +57,24 @@ func main() {
 	avgManager.Start(ctx, msgCh)
 
 	// dial the connection
-	wsClient := ws.NewClient(config.TradingPairs)
-
 	connectCtx, connectCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer connectCancel()
 
 	// connect to cointbase
-	if err := wsClient.Connect(connectCtx, config.Endpoint); err != nil {
+	conn, err := ws.Connect(connectCtx, config.Endpoint)
+	if err != nil {
 		logger.Errorf("error connecting to ws: %v", err)
 		os.Exit(1)
 	}
 	defer func() {
-		err := wsClient.Shutdown()
+		err := conn.Close()
 		if err != nil {
 			logger.Errorf("error disconnecting: %v", err)
 		}
 	}()
+
+	// create the ws client
+	wsClient := ws.NewClient(conn, config.TradingPairs)
 
 	// subscribe
 	subscribeCtx, subscribeCancel := context.WithTimeout(context.Background(), 10*time.Second)
@@ -111,12 +113,8 @@ func main() {
 	logger.Infof("shutting down")
 
 	// close the client
-	err := wsClient.Shutdown()
-	if err != nil {
-		logger.Errorf("ws client closed with error: %+v", err)
-	}
-
-	logger.Infof("ws connection closed")
+	wsClient.Shutdown()
+	logger.Infof("ws reader closed")
 
 	// shutdown usecase
 	avgManager.Shutdown()

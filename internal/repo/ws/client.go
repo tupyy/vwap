@@ -5,9 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"time"
-
-	"golang.org/x/net/websocket"
 
 	"github.com/tupyy/vwap/internal/entity"
 	"github.com/tupyy/vwap/internal/log"
@@ -15,60 +14,22 @@ import (
 
 type WSClient struct {
 	// conn -- websocket connection
-	conn *websocket.Conn
+	conn io.ReadWriter
 	// TradingPairs -- list of trading pairs
 	tradingPairs []string
 	// doneCh -- channel used to close the reader
 	doneCh chan chan interface{}
 }
 
-func NewClient(tradingPairs []string) *WSClient {
+func NewClient(conn io.ReadWriter, tradingPairs []string) *WSClient {
 	return &WSClient{
+		conn:         conn,
 		tradingPairs: tradingPairs,
 		doneCh:       make(chan chan interface{}, 1),
 	}
 }
 
-func (c *WSClient) Connect(ctx context.Context, endpoint string) error {
-	if c.conn != nil {
-		return nil
-	}
-
-	doneCh := make(chan struct{}, 1)
-	errCh := make(chan error, 1)
-
-	go func() {
-		conn, err := websocket.Dial(endpoint, "", "http://localhost/")
-		if err != nil {
-			errCh <- err
-
-			return
-		}
-
-		c.conn = conn
-
-		doneCh <- struct{}{}
-	}()
-
-	select {
-	case <-time.After(10 * time.Second):
-		return errors.New("timeout while connecting to wg")
-	case <-ctx.Done():
-		return ctx.Err()
-	case errConn := <-errCh:
-		return errConn
-	case <-doneCh:
-		log.GetLogger().Infof("client connected to ws")
-	}
-
-	return nil
-}
-
-func (c *WSClient) Shutdown() error {
-	if c.conn == nil {
-		return nil
-	}
-
+func (c *WSClient) Shutdown() {
 	log.GetLogger().Debugf("closing receiver")
 
 	// stop receiver
@@ -77,15 +38,6 @@ func (c *WSClient) Shutdown() error {
 
 	<-retCh
 	log.GetLogger().Debugf("receiver closed")
-
-	err := c.conn.Close()
-	if err != nil {
-		return err
-	}
-
-	c.conn = nil
-
-	return err
 }
 
 func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, errCh chan<- error) {
