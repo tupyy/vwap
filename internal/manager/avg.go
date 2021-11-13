@@ -86,10 +86,10 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 				}
 			case retCh := <-a.doneCh:
 				retCh <- struct{}{}
-				break
+				return
 			case err := <-ctx.Done():
 				logger.Errorf("ctx canceled: %+v. exit", err)
-				break
+				return
 			}
 		}
 	}()
