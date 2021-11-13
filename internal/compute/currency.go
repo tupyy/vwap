@@ -33,6 +33,7 @@ func NewAvgCalculator(volumeSize int) *TradingPairAvgCalculator {
 
 // ProcessHeartBeat updates the lastSequence and last timestamp
 func (c *TradingPairAvgCalculator) ProcessHeartBeat(h entity.HeartBeat) {
+	log.GetLogger().Tracef("heartbeat message processed: %+v", h)
 	c.heartBeatSequence = h.Sequence
 }
 

@@ -21,15 +21,15 @@ COLOR_LEVEL_FATAL=$(escape)[91m
 
 define COLORIZE
 sed -u -e "s/\\\\\"/'/g; \
-s/method=\([^ ]*\)/method=$(COLOR_BLUE)\1$(RESET_COLOR)/g;        \
-s/error=\"\([^\"]*\)\"/error=\"$(COLOR_RED)\1$(RESET_COLOR)\"/g;  \
-s/msg=\"\([^\"]*\)\"/msg=\"$(COLOR_YELLOW)\1$(RESET_COLOR)\"/g;   \
-s/level=trace/level=$(COLOR_LEVEL_TRACE)trace$(RESET_COLOR)/g;    \
-s/level=debug/level=$(COLOR_LEVEL_DEBUG)debug$(RESET_COLOR)/g;    \
-s/level=info/level=$(COLOR_LEVEL_INFO)info$(RESET_COLOR)/g;       \
-s/level=warning/level=$(COLOR_LEVEL_WARN)warning$(RESET_COLOR)/g; \
-s/level=error/level=$(COLOR_LEVEL_ERROR)error$(RESET_COLOR)/g;    \
-s/level=fatal/level=$(COLOR_LEVEL_FATAL)fatal$(RESET_COLOR)/g"
+s/Method\([^ ]*\)/Method$(COLOR_BLUE)\1$(RESET_COLOR)/g;        \
+s/ERROR\"\([^\"]*\)\"/error=\"$(COLOR_RED)\1$(RESET_COLOR)\"/g;  \
+s/ProductID:\s\([^\"]*\)/$(COLOR_YELLOW)ProductID: \1$(RESET_COLOR)/g;   \
+s/\[TRACE\]/$(COLOR_LEVEL_TRACE)\[TRACE\]$(RESET_COLOR)/g;    \
+s/\[DEBUG\]/$(COLOR_LEVEL_DEBUG)DEBUG$(RESET_COLOR)/g;    \
+s/\[INFO\]/$(COLOR_LEVEL_INFO)[INFO]$(RESET_COLOR)/g;       \
+s/\[WARNING\]/$(COLOR_LEVEL_WARN)[WARNING]$(RESET_COLOR)/g; \
+s/\[ERROR\]/$(COLOR_LEVEL_ERROR)[ERROR]$(RESET_COLOR)/g;    \
+s/\[FATAL\]/level=$(COLOR_LEVEL_FATAL)[FATAL]$(RESET_COLOR)/g"
 endef
 
 
@@ -92,6 +92,7 @@ build.vendor:
 #help build.vendor.full: retrieve all the dependencies after cleaning the go.sum
 build.vendor.full:
 	@rm -fr $(CURDIR)/vendor
+	go mod vendor
 
 #help build.docker: build a docker image
 build.docker:
@@ -102,6 +103,7 @@ build.local: build.prepare
 	go build -mod=vendor $(BUILD_ARGS) -ldflags "-X main.CommitID=$(GIT_COMMIT) -s -w" \
 	-o $(CURDIR)/target/run $(CURDIR)/main.go
 
+#help build.tools: build docker image for lint and check tools
 build.tools:
 	docker build -t $(TOOLS_DOCKER_IMAGE) --build-arg GO_VERSION=$(GO_VERSION) -f tools/Dockerfile tools/ 
 
