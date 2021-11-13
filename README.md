@@ -19,10 +19,11 @@ make run.docker
 ### How to
 
 - Find information related to the Makefile: make or make help
-- Format code: make check.fmt
-- Format import: make check.imports
-- Code linter : make check.lint
-- Execute TU: make check.test
+- Format code: `make check.fmt`
+- Format import: `make check.imports`
+- Code linter : `make check.lint`
+- Execute TU: `make check.test`
+- Create container for lint/format: `make build.tools`
 
 ## Configuration
 
