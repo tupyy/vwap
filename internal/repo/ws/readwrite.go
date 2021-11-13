@@ -68,5 +68,4 @@ func getMessageType(msg []byte) (messageType, error) {
 	default:
 		return unknownMessageType, nil
 	}
-
 }

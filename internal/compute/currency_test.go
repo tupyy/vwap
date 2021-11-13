@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/assert"
+
 	"github.com/tupyy/vwap/internal/compute"
 	"github.com/tupyy/vwap/internal/entity"
 )

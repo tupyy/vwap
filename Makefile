@@ -76,6 +76,7 @@ GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(VERSION)-$(GIT_COMMIT)
 IMAGE_NAME=$(NAME)
+GO_VERSION=1.17
 
 GOCACHE?=$(shell go env GOCACHE 2>/dev/null)
 
@@ -107,37 +108,37 @@ build.local: build.prepare
 	go build -mod=vendor $(BUILD_ARGS) -ldflags "-X main.CommitID=$(GIT_COMMIT) -s -w" \
 	-o $(CURDIR)/target/run $(CURDIR)/main.go
 
+build.tools:
+	docker build -t $(TOOLS_DOCKER_IMAGE) --build-arg GO_VERSION=$(GO_VERSION) -f tools/Dockerfile tools/ 
+
 #####################
 # Check targets     #
 #####################
 
 LINT_COMMAND=golangci-lint run
 FILES_LIST=$(shell ls -d */ | grep -v -E "vendor|tools|target|client|restapi|models")
-TOOLS_DOCKER_IMAGE=go1.17:buster
+TOOLS_DOCKER_IMAGE=go-1.17:alpine
 MODULE_NAME=$(shell head -n 1 go.mod | cut -d '/' -f 3)
 
 .PHONY: check.fmt check.imports check.lint check.test 
 
-check.prepare:
-	@docker pull $(TOOLS_DOCKER_IMAGE)
-
 #help check.fmt: format go code
-check.fmt: check.prepare
+check.fmt: 
 	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)"  $(TOOLS_DOCKER_IMAGE) sh -c 'gofumpt -s -w $(FILES_LIST)'
 
 #help check.imports: fix and format go imports
-check.imports: check.prepare
+check.imports: 
 	@# Removes blank lines within import block so that goimports does its magic in a deterministic way
 	find $(FILES_LIST) -type f -name "*.go" | xargs -L 1 sed -i '/import (/,/)/{/import (/n;/)/!{/^$$/d}}'
 	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy $(FILES_LIST)'
 	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy/$(MODULE_NAME) $(FILES_LIST)'
 
 #help check.lint: check if the go code is properly written, rules are in .golangci.yml
-check.lint: check.prepare
+check.lint: 
 	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c '$(LINT_COMMAND)'
 
 #help check.test: execute go tests
-check.test: check.prepare
+check.test: 
 	go test -mod=vendor ./...
 
 

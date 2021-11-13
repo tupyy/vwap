@@ -7,9 +7,10 @@ import (
 	"fmt"
 	"time"
 
+	"golang.org/x/net/websocket"
+
 	"github.com/tupyy/vwap/internal/entity"
 	"github.com/tupyy/vwap/internal/log"
-	"golang.org/x/net/websocket"
 )
 
 type WSClient struct {
@@ -75,7 +76,7 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 			logger.Trace("receive new message %s", msg.MessageType.String())
 			switch msg.MessageType {
 			case errorMessageType:
-				logger.Error("received error message: %s", string(msg.Message))
+				errCh <- fmt.Errorf("received an error message: %s", string(msg.Message))
 			case tickerMessageType:
 				var t entity.Ticker
 				err := json.Unmarshal(msg.Message, &t)
@@ -105,7 +106,6 @@ func (c *WSClient) Subscribe(ctx context.Context) error {
 	}
 
 	return c.makeSubcription(ctx, msg)
-
 }
 
 func (c *WSClient) Unsubscribe(ctx context.Context) error {
@@ -116,7 +116,6 @@ func (c *WSClient) Unsubscribe(ctx context.Context) error {
 	}
 
 	return c.makeSubcription(ctx, msg)
-
 }
 
 func (c *WSClient) makeSubcription(ctx context.Context, msg subscribeMessage) error {

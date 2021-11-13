@@ -62,7 +62,7 @@ func main() {
 	connectCtx, connectCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer connectCancel()
 
-	// defer disconnect
+	// connect to cointbase
 	if err := wsClient.Connect(connectCtx, config.Endpoint); err != nil {
 		logger.Error("error connecting to ws: %v", err)
 		os.Exit(1)

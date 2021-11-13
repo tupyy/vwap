@@ -12,11 +12,9 @@ import (
 // DefaultVolumeSize is the default size for average calculation.
 const DefaultVolumeSize = 200
 
-var (
-	// ErrSequenceNotIncreasing means that the sequence of the receiving ticker message is inferior of the last seen sequence.
-	// It means that the message arrive too late and is not taken into account.
-	ErrSequenceNotIncreasing = errors.New("error sequence not increasing")
-)
+// ErrSequenceNotIncreasing means that the sequence of the receiving ticker message is inferior of the last seen sequence.
+// It means that the message arrive too late and is not taken into account.
+var ErrSequenceNotIncreasing = errors.New("error sequence not increasing")
 
 type TradingPairAvgCalculator struct {
 	// c -- avg calculator
