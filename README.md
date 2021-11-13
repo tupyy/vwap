@@ -63,13 +63,15 @@ Configuration file:
 The app has a clean architecture design. It has two layers: transport layer (websocket, output `repo` module) and usecase. 
 The idea is to decouple the _transport layer_ from _usecase_ to be able to scale up easily if a large number of pair trading are to be computed.
 
-*Transport layer*
+**Transport layer**
+
 Only one connection is made to ws server although a connection per trading pair can be setup. On each message arrival, the client find the type of the message. Then the message is parsed into a corresponding `entity`.
 This process of parsing the type of message and then the whole message was done in order to have a loose coupling of the low level read method `readWs` and the `receive` method of the client.
 When the parsing is done, the _entity_ is written into a channel which is consumed by the _usecase_. The use of channel between the layers allows the _usecase_ to consume the message at its pace.
 
-*Usecase*
-The _usecase_ has a central component (`AvgManager` the name could be better I admit) which consume messages from input channel and, for each trading pair, calls the `TradingPairAvgCalculator` for each _ticker_ of _heartbeat_ message.
+**Usecase**
+
+The usecase has a central component (`AvgManager` the name could be better I admit) which consume messages from input channel and, for each trading pair, calls the `TradingPairAvgCalculator` for each _ticker_ of _heartbeat_ message.
 Each trading pair has his own `TradingPairAvgCalculator` stored in a map.
 
 The job of `TradingPairAvgCalculator` is to make sure that the sequence of the _ticker_ is equal or superior of the sequence of the last _hearbeat_. 
