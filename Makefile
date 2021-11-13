@@ -71,18 +71,12 @@ tools.get:
 # Build targets     #
 #####################
 NAME=vwap
-VERSION=$(shell cat VERSION)
+VERSION=0.1
 GIT_COMMIT=$(shell git rev-list -1 HEAD --abbrev-commit)
 
 IMAGE_TAG=$(VERSION)-$(GIT_COMMIT)
 IMAGE_NAME=$(NAME)
 GO_VERSION=1.17
-
-GOCACHE?=$(shell go env GOCACHE 2>/dev/null)
-
-ifneq "$(strip $(GOCACHE))" ""
-    GOCACHE_FLAGS=-v $(GOCACHE):/cache/go -e GOCACHE=/cache/go -e GOLANGCI_LINT_CACHE=/cache/go
-endif
 
 .PHONY: build.prepare build.vendor build.vendor.full build.docker 
 
@@ -150,7 +144,7 @@ check.test:
 
 #help run.docker: run the application on a container
 run.docker:
-	docker run -d --rm -v $(CURDIR)/resources/:/etc/$(NAME)/ --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --config /etc/$(NAME)/.$(NAME).json
+	docker run -d --rm -v $(CURDIR)/resources/:/etc/$(NAME)/ --network host --name $(NAME) $(IMAGE_NAME):$(IMAGE_TAG) --config /etc/$(NAME)/.$(NAME).json
 	@docker logs -f $(NAME) | $(COLORIZE)
 
 #help run.docker.stop: stop the container of the application
