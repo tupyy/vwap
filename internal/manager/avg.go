@@ -18,7 +18,7 @@ type OutputWriter interface {
 }
 
 type AvgManager struct {
-	doneCh chan interface{}
+	doneCh chan chan interface{}
 
 	outWriter OutputWriter
 	// avgCurrencyCalculators holds the avg calculators.
@@ -28,7 +28,7 @@ type AvgManager struct {
 
 func NewAvgManager(o OutputWriter) *AvgManager {
 	avgManager := &AvgManager{
-		doneCh:                 make(chan interface{}, 1),
+		doneCh:                 make(chan chan interface{}, 1),
 		outWriter:              o,
 		avgCurrencyCalculators: make(map[string]CurrencyAvgCalculator),
 	}
@@ -84,18 +84,24 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 				default:
 					log.GetLogger().Warningf("cannot cast received message: %+v", msg)
 				}
-			case <-a.doneCh:
-				logger.Infof("shutdown avg manager")
-				return
+			case retCh := <-a.doneCh:
+				retCh <- struct{}{}
+				break
 			case err := <-ctx.Done():
 				logger.Errorf("ctx canceled: %+v. exit", err)
-				return
+				break
 			}
 		}
 	}()
 }
 
 // Shutdown close the avg manager.
+// Block until goroutine returned.
 func (a *AvgManager) Shutdown() {
-	a.doneCh <- struct{}{}
+	retCh := make(chan interface{})
+
+	a.doneCh <- retCh
+	<-retCh
+
+	log.GetLogger().Infof("avg manager closed")
 }

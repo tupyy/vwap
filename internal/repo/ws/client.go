@@ -14,12 +14,19 @@ import (
 )
 
 type WSClient struct {
-	conn         *websocket.Conn
+	// conn -- websocket connection
+	conn *websocket.Conn
+	// TradingPairs -- list of trading pairs
 	tradingPairs []string
+	// doneCh -- channel used to close the reader
+	doneCh chan chan interface{}
 }
 
 func NewClient(tradingPairs []string) *WSClient {
-	return &WSClient{tradingPairs: tradingPairs}
+	return &WSClient{
+		tradingPairs: tradingPairs,
+		doneCh:       make(chan chan interface{}, 1),
+	}
 }
 
 func (c *WSClient) Connect(ctx context.Context, endpoint string) error {
@@ -57,8 +64,28 @@ func (c *WSClient) Connect(ctx context.Context, endpoint string) error {
 	return nil
 }
 
-func (c *WSClient) Disconnect() error {
-	return c.conn.Close()
+func (c *WSClient) Shutdown() error {
+	if c.conn == nil {
+		return nil
+	}
+
+	log.GetLogger().Debugf("closing receiver")
+
+	// stop receiver
+	retCh := make(chan interface{}, 1)
+	c.doneCh <- retCh
+
+	<-retCh
+	log.GetLogger().Debugf("receiver closed")
+
+	err := c.conn.Close()
+	if err != nil {
+		return err
+	}
+
+	c.conn = nil
+
+	return err
 }
 
 func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, errCh chan<- error) {
@@ -93,6 +120,17 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 				}
 
 				outputCh <- t
+
+			}
+
+			select {
+			case <-ctx.Done():
+				logger.Errorf("context canceled: %+v", ctx.Err())
+				return
+			case retCh := <-c.doneCh:
+				retCh <- struct{}{}
+				return
+			default:
 			}
 		}
 	}()

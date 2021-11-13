@@ -68,7 +68,7 @@ func main() {
 		os.Exit(1)
 	}
 	defer func() {
-		err := wsClient.Disconnect()
+		err := wsClient.Shutdown()
 		if err != nil {
 			logger.Errorf("error disconnecting: %v", err)
 		}
@@ -96,12 +96,27 @@ func main() {
 		}
 	}()
 
+	// handle int & term signals
 	sigCh := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	<-sigCh
+	go func() {
+		<-sigCh
+		done <- true
+	}()
+
+	<-done
 
 	logger.Infof("shutting down")
+
+	// close the client
+	err := wsClient.Shutdown()
+	if err != nil {
+		logger.Errorf("ws client closed with error: %+v", err)
+	}
+
+	logger.Infof("ws connection closed")
 
 	// shutdown usecase
 	avgManager.Shutdown()
