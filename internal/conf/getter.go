@@ -48,7 +48,7 @@ func Get() Conf {
 		conf := parseConfFile(content)
 
 		if conf.MaxDataPoints == 0 {
-			log.GetLogger().Warning("cannot set max data points to 0. Default to 200.")
+			log.GetLogger().Warningf("cannot set max data points to 0. Default to 200.")
 
 			conf.MaxDataPoints = 200
 		}
@@ -58,7 +58,7 @@ func Get() Conf {
 
 	// check if endpoint and trading pairs are set
 	if len(endpoint) == 0 || len(pairs) == 0 {
-		log.GetLogger().Error("Both endpoint and trading pairs are mandatory.")
+		log.GetLogger().Errorf("Both endpoint and trading pairs are mandatory.")
 
 		os.Exit(1)
 	}
@@ -69,12 +69,10 @@ func Get() Conf {
 		OutputFile:   outputFile,
 	}
 
-	for _, p := range strings.Split(pairs, ",") {
-		conf.TradingPairs = append(conf.TradingPairs, p)
-	}
+	conf.TradingPairs = append(conf.TradingPairs, strings.Split(pairs, ",")...)
 
 	if maxDataPoints == 0 {
-		log.GetLogger().Warning("cannot set max data points to 0. Default to 200.")
+		log.GetLogger().Warningf("cannot set max data points to 0. Default to 200.")
 
 		maxDataPoints = 200
 	}
@@ -101,6 +99,7 @@ func parseLogLevel(l string) log.Level {
 	}
 }
 
+// nolint: tagliatelle
 func parseConfFile(content []byte) Conf {
 	confFile := struct {
 		Endpoint      string   `json:"endpoint"`

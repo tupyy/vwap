@@ -51,7 +51,7 @@ func (c *TradingPairAvgCalculator) ProcessTicker(t entity.Ticker) (avg float64, 
 
 	avg, totalPoints = c.calc.ComputeAverage()
 
-	log.GetLogger().Debug("new ticker processed: %+v. new average: %f", t, avg)
+	log.GetLogger().Debugf("new ticker processed: %+v. new average: %f", t, avg)
 
 	return
 }

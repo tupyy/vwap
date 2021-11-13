@@ -17,7 +17,7 @@ func readWs(r io.Reader) (message, error) {
 		return message{}, err
 	}
 
-	logger.Trace("read %d bytes. read msg from websocket %s", n, string(b))
+	logger.Tracef("read %d bytes. read msg from websocket %s", n, string(b))
 
 	msgData := make([]byte, n)
 	copy(msgData, b[:n])
@@ -34,14 +34,14 @@ func readWs(r io.Reader) (message, error) {
 }
 
 func writeToWs(w io.Writer, msg []byte) error {
-	log.GetLogger().Trace("write message to ws: %s", string(msg))
+	log.GetLogger().Tracef("write message to ws: %s", string(msg))
 
 	n, err := w.Write(msg)
 	if err != nil {
 		return err
 	}
 
-	log.GetLogger().Debug("wrote %d bytes to websocket", n)
+	log.GetLogger().Debugf("wrote %d bytes to websocket", n)
 
 	return nil
 }

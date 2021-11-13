@@ -24,11 +24,11 @@ func main() {
 
 	logger := log.GetLogger()
 
-	logger.Info("Git commit: %s", CommitID)
-	logger.Info("Conf used: %+v", config)
+	logger.Infof("Git commit: %s", CommitID)
+	logger.Infof("Conf used: %+v", config)
 
 	// setup output
-	var out *output.OutputWriter
+	var out *output.Writer
 	if len(config.OutputFile) == 0 {
 		out = output.NewStdOutputWriter()
 	} else {
@@ -38,7 +38,7 @@ func main() {
 			panic(err)
 		}
 
-		out = output.NewFileOutputWriter(outputFile)
+		out = output.NewFileWriter(outputFile)
 	}
 
 	// create message channel
@@ -64,13 +64,13 @@ func main() {
 
 	// connect to cointbase
 	if err := wsClient.Connect(connectCtx, config.Endpoint); err != nil {
-		logger.Error("error connecting to ws: %v", err)
+		logger.Errorf("error connecting to ws: %v", err)
 		os.Exit(1)
 	}
 	defer func() {
 		err := wsClient.Disconnect()
 		if err != nil {
-			logger.Error("error disconnecting: %v", err)
+			logger.Errorf("error disconnecting: %v", err)
 		}
 	}()
 
@@ -78,7 +78,7 @@ func main() {
 	subscribeCtx, subscribeCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer subscribeCancel()
 	if err := wsClient.Subscribe(subscribeCtx); err != nil {
-		logger.Error("error subscribing: %v", err)
+		logger.Errorf("error subscribing: %v", err)
 		os.Exit(1)
 	}
 
@@ -87,7 +87,7 @@ func main() {
 	wsClient.Receive(ctx, msgCh, errCh)
 	go func() {
 		for e := range errCh {
-			logger.Error("error reading ws: %+v", e)
+			logger.Errorf("error reading ws: %+v", e)
 			select {
 			case <-ctx.Done():
 				return
@@ -101,7 +101,7 @@ func main() {
 
 	<-sigCh
 
-	logger.Info("shutting down")
+	logger.Infof("shutting down")
 
 	// shutdown usecase
 	avgManager.Shutdown()

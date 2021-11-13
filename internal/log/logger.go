@@ -69,33 +69,33 @@ func GetLogger() *Logger {
 	return logger
 }
 
-func (l *Logger) Trace(format string, v ...interface{}) {
-	l.output(Trace, format, v...)
+func (l *Logger) Tracef(format string, v ...interface{}) {
+	l.outputf(Trace, format, v...)
 }
 
-func (l *Logger) Debug(format string, v ...interface{}) {
-	l.output(Debug, format, v...)
+func (l *Logger) Debugf(format string, v ...interface{}) {
+	l.outputf(Debug, format, v...)
 }
 
-func (l *Logger) Info(format string, v ...interface{}) {
-	l.output(Info, format, v...)
+func (l *Logger) Infof(format string, v ...interface{}) {
+	l.outputf(Info, format, v...)
 }
 
-func (l *Logger) Warning(format string, v ...interface{}) {
-	l.output(Warning, format, v...)
+func (l *Logger) Warningf(format string, v ...interface{}) {
+	l.outputf(Warning, format, v...)
 }
 
-func (l *Logger) Error(format string, v ...interface{}) {
-	l.output(Error, format, v...)
+func (l *Logger) Errorf(format string, v ...interface{}) {
+	l.outputf(Error, format, v...)
 }
 
-func (l *Logger) output(logLevel Level, format string, v ...interface{}) {
+func (l *Logger) outputf(logLevel Level, format string, v ...interface{}) {
 	if l.level <= logLevel {
 		l.logger.Printf("[%s] Method[%s] %s", logLevel.String(), l.methodName, fmt.Sprintf(format, v...))
 	}
 }
 
-// getMethodName get the calling method from the stack
+// getMethodName get the calling method from the stack.
 func getMethodName() string {
 	// 4 as stack depth should be enough to get the real caller. (2 should be enough)
 	stack := make([]uintptr, 4)
@@ -108,7 +108,6 @@ func getMethodName() string {
 	frames := runtime.CallersFrames(stack)
 
 	for f, hasNext := frames.Next(); hasNext; {
-
 		tmp := strings.Split(f.Function, "/")
 		if len(tmp) == 0 {
 			continue

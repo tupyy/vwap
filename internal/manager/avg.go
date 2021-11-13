@@ -43,6 +43,7 @@ func (a *AvgManager) AddAvgCalculator(productID string, c CurrencyAvgCalculator)
 // Start starts the avg manager.
 // It receive an input channel and a context.
 // From input channel reads Ticker and HeartBeat messages.
+// nolint: gocognit
 func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 	logger := log.GetLogger()
 
@@ -52,23 +53,23 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 			case msg := <-inputCh:
 				switch v := msg.(type) {
 				case entity.HeartBeat:
-					logger.Debug("heart beat received: %+v", v)
+					logger.Debugf("heart beat received: %+v", v)
 
 					c := a.avgCurrencyCalculators[v.ProductID]
 					c.ProcessHeartBeat(v)
 				case entity.Ticker:
-					logger.Debug("ticker received: %+v", v)
+					logger.Debugf("ticker received: %+v", v)
 
 					c, found := a.avgCurrencyCalculators[v.ProductID]
 					if !found {
-						logger.Error("received ticker for a product that does not exists: %s", v.ProductID)
+						logger.Errorf("received ticker for a product that does not exists: %s", v.ProductID)
 
 						continue
 					}
 
 					avg, totalPoints, err := c.ProcessTicker(v)
 					if err != nil {
-						logger.Error("cannot compute average: %+v", err)
+						logger.Errorf("cannot compute average: %+v", err)
 					} else {
 						err := a.outWriter.Write(entity.AverageResult{
 							ProductID:   v.ProductID,
@@ -77,17 +78,17 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 							TotalPoints: totalPoints,
 						})
 						if err != nil {
-							log.GetLogger().Warning("cannot write to output: %+v", err)
+							log.GetLogger().Warningf("cannot write to output: %+v", err)
 						}
 					}
 				default:
-					log.GetLogger().Warning("cannot cast received message: %+v", msg)
+					log.GetLogger().Warningf("cannot cast received message: %+v", msg)
 				}
 			case <-a.doneCh:
-				logger.Info("shutdown avg manager")
+				logger.Infof("shutdown avg manager")
 				return
 			case err := <-ctx.Done():
-				logger.Error("ctx canceled: %+v. exit", err)
+				logger.Errorf("ctx canceled: %+v. exit", err)
 				return
 			}
 		}

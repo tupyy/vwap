@@ -130,12 +130,12 @@ check.fmt:
 check.imports: 
 	@# Removes blank lines within import block so that goimports does its magic in a deterministic way
 	find $(FILES_LIST) -type f -name "*.go" | xargs -L 1 sed -i '/import (/,/)/{/import (/n;/)/!{/^$$/d}}'
-	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy $(FILES_LIST)'
-	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy/$(MODULE_NAME) $(FILES_LIST)'
+	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy $(FILES_LIST)'
+	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(TOOLS_DOCKER_IMAGE) sh -c 'goimports -w -local github.com/tupyy/$(MODULE_NAME) $(FILES_LIST)'
 
 #help check.lint: check if the go code is properly written, rules are in .golangci.yml
 check.lint: 
-	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(GOCACHE_FLAGS) $(TOOLS_DOCKER_IMAGE) sh -c '$(LINT_COMMAND)'
+	docker run --rm -v $(CURDIR):$(CURDIR) -w="$(CURDIR)" $(TOOLS_DOCKER_IMAGE) sh -c '$(LINT_COMMAND)'
 
 #help check.test: execute go tests
 check.test: 

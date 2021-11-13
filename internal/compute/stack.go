@@ -24,7 +24,7 @@ func (s *stack) Push(p entity.DataPoint) {
 		s.root = &node{value: p}
 		s.size++
 
-		log.GetLogger().Trace("set root to %+v", p)
+		log.GetLogger().Tracef("set root to %+v", p)
 
 		return
 	}
@@ -41,7 +41,7 @@ func (s *stack) Pop() *node {
 	s.root = s.root.prev
 	s.size--
 
-	log.GetLogger().Trace("element popped %+v. new size: %d", root, s.size)
+	log.GetLogger().Tracef("element popped %+v. new size: %d", root, s.size)
 
 	return root
 }

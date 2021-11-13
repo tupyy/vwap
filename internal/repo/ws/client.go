@@ -51,7 +51,7 @@ func (c *WSClient) Connect(ctx context.Context, endpoint string) error {
 	case errConn := <-errCh:
 		return errConn
 	case <-doneCh:
-		log.GetLogger().Info("client connected to ws")
+		log.GetLogger().Infof("client connected to ws")
 	}
 
 	return nil
@@ -73,7 +73,7 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 				continue
 			}
 
-			logger.Trace("receive new message %s", msg.MessageType.String())
+			logger.Tracef("receive new message %s", msg.MessageType.String())
 			switch msg.MessageType {
 			case errorMessageType:
 				errCh <- fmt.Errorf("received an error message: %s", string(msg.Message))
@@ -81,7 +81,7 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 				var t entity.Ticker
 				err := json.Unmarshal(msg.Message, &t)
 				if err != nil {
-					logger.Error("%+v", err)
+					logger.Errorf("%+v", err)
 				}
 
 				outputCh <- t
@@ -89,7 +89,7 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 				var t entity.HeartBeat
 				err := json.Unmarshal(msg.Message, &t)
 				if err != nil {
-					logger.Error("%+v", err)
+					logger.Errorf("%+v", err)
 				}
 
 				outputCh <- t

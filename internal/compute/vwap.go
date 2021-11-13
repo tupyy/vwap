@@ -40,7 +40,7 @@ func (c *Calculator) Add(p entity.DataPoint) {
 	c.totalVolume += p.Volume
 	c.valueVolumeSum += p.Value * p.Volume
 
-	log.GetLogger().Debug("Total volume: %f ValueVolumeSum: %f Number of points: %d", c.totalVolume, c.valueVolumeSum, c.stack.Size())
+	log.GetLogger().Debugf("Total volume: %f ValueVolumeSum: %f Number of points: %d", c.totalVolume, c.valueVolumeSum, c.stack.Size())
 }
 
 func (c *Calculator) ComputeAverage() (avg float64, totalPoints int) {

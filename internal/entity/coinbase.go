@@ -3,6 +3,7 @@ package entity
 import "time"
 
 // Ticker represent the json ticker message from coinbase.
+// nolint: tagliatelle
 type Ticker struct {
 	Sequence  int64     `json:"sequence"`
 	ProductID string    `json:"product_id"`
@@ -11,15 +12,8 @@ type Ticker struct {
 	Timestamp time.Time `json:"time"`
 }
 
-type Ticker2 struct {
-	Sequence  int64     `json:"sequence"`
-	ProductID string    `json:"product_id"`
-	Price     string    `json:"price"`
-	Volume    string    `json:"last_size"`
-	Timestamp time.Time `json:"time"`
-}
-
 // Heartbeat message.
+// nolint: tagliatelle
 type HeartBeat struct {
 	ProductID string `json:"product_id"`
 	Sequence  int64  `json:"sequence"`
