@@ -8,7 +8,7 @@ import (
 	"github.com/tupyy/vwap/internal/log"
 )
 
-type CurrencyAvgCalculator interface {
+type PairAvgCalculator interface {
 	ProcessHeartBeat(h entity.HeartBeat)
 	ProcessTicker(t entity.Ticker) (avg float64, totalPoints int, err error)
 }
@@ -23,20 +23,20 @@ type AvgManager struct {
 	outWriter OutputWriter
 	// avgCurrencyCalculators holds the avg calculators.
 	// the key is the product id
-	avgCurrencyCalculators map[string]CurrencyAvgCalculator
+	avgCurrencyCalculators map[string]PairAvgCalculator
 }
 
 func NewAvgManager(o OutputWriter) *AvgManager {
 	avgManager := &AvgManager{
 		doneCh:                 make(chan chan interface{}, 1),
 		outWriter:              o,
-		avgCurrencyCalculators: make(map[string]CurrencyAvgCalculator),
+		avgCurrencyCalculators: make(map[string]PairAvgCalculator),
 	}
 
 	return avgManager
 }
 
-func (a *AvgManager) AddAvgCalculator(productID string, c CurrencyAvgCalculator) {
+func (a *AvgManager) AddAvgCalculator(productID string, c PairAvgCalculator) {
 	a.avgCurrencyCalculators[productID] = c
 }
 
@@ -55,7 +55,12 @@ func (a *AvgManager) Start(ctx context.Context, inputCh <-chan interface{}) {
 				case entity.HeartBeat:
 					logger.Debugf("heart beat received: %+v", v)
 
-					c := a.avgCurrencyCalculators[v.ProductID]
+					c, found := a.avgCurrencyCalculators[v.ProductID]
+					if !found {
+						logger.Errorf("received heart beat for a product that does not exists: %s", v.ProductID)
+
+						continue
+					}
 					c.ProcessHeartBeat(v)
 				case entity.Ticker:
 					logger.Debugf("ticker received: %+v", v)
