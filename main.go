@@ -51,9 +51,6 @@ func main() {
 		avgManager.AddAvgCalculator(p, c)
 	}
 
-	// define our context
-	ctx, cancel := context.WithCancel(context.Background())
-
 	// dial the connection
 	connectCtx, connectCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer connectCancel()
@@ -81,6 +78,10 @@ func main() {
 		logger.Errorf("error subscribing: %v", err)
 		os.Exit(1)
 	}
+
+	// define our context
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	// start manager once the connection is up
 	avgManager.Start(ctx, msgCh)
@@ -119,7 +120,4 @@ func main() {
 
 	// shutdown usecase
 	avgManager.Shutdown()
-
-	// cancel context
-	cancel()
 }
