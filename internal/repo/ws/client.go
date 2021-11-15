@@ -44,8 +44,9 @@ func (c *WSClient) Receive(ctx context.Context, outputCh chan<- interface{}, err
 	logger := log.GetLogger()
 
 	go func() {
+		b := make([]byte, 1024)
 		for {
-			msg, err := readWs(c.conn)
+			msg, err := readWs(c.conn, b)
 			if err != nil {
 				errCh <- err
 
@@ -122,7 +123,8 @@ func (c *WSClient) makeSubcription(ctx context.Context, msg subscribeMessage) er
 	msgCh := make(chan message, 1)
 	errCh := make(chan error, 1)
 	go func() {
-		msg, err := readWs(c.conn)
+		b := make([]byte, 1024)
+		msg, err := readWs(c.conn, b)
 		if err != nil {
 			errCh <- err
 

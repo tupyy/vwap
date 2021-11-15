@@ -8,19 +8,18 @@ import (
 	"github.com/tupyy/vwap/internal/log"
 )
 
-func readWs(r io.Reader) (message, error) {
+func readWs(r io.Reader, buffer []byte) (message, error) {
 	logger := log.GetLogger()
-	b := make([]byte, 1024*2)
 
-	n, err := r.Read(b)
+	n, err := r.Read(buffer)
 	if err != nil {
 		return message{}, err
 	}
 
-	logger.Tracef("read %d bytes. read msg from websocket %s", n, string(b))
+	logger.Tracef("read %d bytes. read msg from websocket %s", n, string(buffer[:n]))
 
 	msgData := make([]byte, n)
-	copy(msgData, b[:n])
+	copy(msgData, buffer[:n])
 
 	msgType, err := getMessageType(msgData)
 	if err != nil {
