@@ -54,8 +54,6 @@ func main() {
 	// define our context
 	ctx, cancel := context.WithCancel(context.Background())
 
-	avgManager.Start(ctx, msgCh)
-
 	// dial the connection
 	connectCtx, connectCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer connectCancel()
@@ -83,6 +81,9 @@ func main() {
 		logger.Errorf("error subscribing: %v", err)
 		os.Exit(1)
 	}
+
+	// start manager once the connection is up
+	avgManager.Start(ctx, msgCh)
 
 	// start reading
 	errCh := make(chan error)
